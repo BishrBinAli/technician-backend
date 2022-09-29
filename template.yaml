@@ -1,0 +1,84 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  technician-backend
+
+  Sample SAM Template for technician-backend
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Handler: app.lambdaHandler
+    Runtime: nodejs16.x
+    Architectures:
+      - x86_64
+    Timeout: 180
+    Environment:
+      Variables:
+        DB_HOST: "{{resolve:ssm:IGNIS_DEV_DB_HOST}}"
+        DB_NAME: "{{resolve:ssm:IGNIS_DEV_DB_NAME}}"
+        DB_USER: "{{resolve:ssm:IGNIS_DEV_DB_USERNAME}}"
+        DB_PASS: "{{resolve:ssm:IGNIS_DEV_DB_PASSWORD}}"
+        DB_PORT: "{{resolve:ssm:IGNIS_DEV_DB_PORT}}"
+
+Resources:
+  HelloWorldFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: hello-world/
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /hello
+            Method: get
+      Layers:
+        - !Ref GeneralDependenciesLayer
+
+  WorkOrderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: workorders/
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /workorders
+            Method: ANY
+      Layers:
+        - !Ref GeneralDependenciesLayer
+
+  AssetsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: assets/
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /assets
+            Method: ANY
+      Layers:
+        - !Ref GeneralDependenciesLayer
+
+  ############ DEPENDENCIES ############
+
+  #Common Dependencies
+  GeneralDependenciesLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: dependencies
+      Description: Common Dependencies
+      ContentUri: dependencies/general/
+      CompatibleRuntimes:
+        - nodejs16.x
+      LicenseInfo: "MIT"
+      RetentionPolicy: Retain
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  HelloWorldApi:
+    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
