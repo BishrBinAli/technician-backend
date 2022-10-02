@@ -53,10 +53,36 @@ Resources:
     Properties:
       CodeUri: assets/
       Events:
-        HelloWorld:
+        AssetsAPI:
           Type: Api
           Properties:
             Path: /assets
+            Method: ANY
+      Layers:
+        - !Ref GeneralDependenciesLayer
+
+  SystemsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: systems/
+      Events:
+        SystemsAPI:
+          Type: Api
+          Properties:
+            Path: /systems
+            Method: ANY
+      Layers:
+        - !Ref GeneralDependenciesLayer
+
+  DevicessFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: devices/
+      Events:
+        DevicesAPI:
+          Type: Api
+          Properties:
+            Path: /devices
             Method: ANY
       Layers:
         - !Ref GeneralDependenciesLayer
