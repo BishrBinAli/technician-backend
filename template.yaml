@@ -87,6 +87,32 @@ Resources:
       Layers:
         - !Ref GeneralDependenciesLayer
 
+  DeashboardFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dashboard/
+      Events:
+        DashboardAPI:
+          Type: Api
+          Properties:
+            Path: /dashboard
+            Method: ANY
+      Layers:
+        - !Ref GeneralDependenciesLayer
+
+  ScheduleFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: schedule/
+      Events:
+        ScheduleAPI:
+          Type: Api
+          Properties:
+            Path: /schedule
+            Method: ANY
+      Layers:
+        - !Ref GeneralDependenciesLayer
+
   ############ DEPENDENCIES ############
 
   #Common Dependencies
