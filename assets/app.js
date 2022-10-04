@@ -5,7 +5,7 @@ const responseHandler = require("/opt/nodejs/utils/responseHandler.js");
 
 exports.lambdaHandler = async (event, context) => {
   let statusCode = 200;
-  let data;
+  let data, body;
   let httpMethod = event.httpMethod;
 
   try {
@@ -14,14 +14,17 @@ exports.lambdaHandler = async (event, context) => {
         [data, statusCode] = ["Success", 200];
         break;
       case "GET":
-        // let params = event.queryStringParameters;
-        [data, statusCode] = await getAssets();
-
+        let params = event.queryStringParameters;
+        [data, statusCode] = await getAssets(params.id);
         break;
       case "POST":
-        let body = JSON.parse(event.body);
+        body = JSON.parse(event.body);
         // console.log(body);
         [data, statusCode] = await addAsset(body);
+        break;
+      case "DELETE":
+        body = JSON.parse(event.body);
+        [data, statusCode] = await deleteAsset(body.asset_id);
         break;
       default:
         [data, statusCode] = ["Error: Invalid request", 400];
@@ -69,7 +72,15 @@ async function addAsset(body) {
   return [data, statusCode];
 }
 
-async function getAssets() {
-  const assets = await db.any(`SELECT * from assets`);
+async function getAssets(wo_id) {
+  const assets = await db.any(`SELECT * from assets WHERE wo_id = $1`, [wo_id]);
   return [assets, 200];
+}
+
+async function deleteAsset(id) {
+  if (!id) throw new Error("ID Missing!");
+
+  await db.none("DELETE FROM assets WHERE asset_id = $1", [id]);
+
+  return ["Client Successfully Removed", 200];
 }
