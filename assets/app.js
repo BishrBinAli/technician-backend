@@ -15,7 +15,12 @@ exports.lambdaHandler = async (event, context) => {
         break;
       case "GET":
         let params = event.queryStringParameters;
-        [data, statusCode] = await getAssets(params.id);
+        // console.log(params.type);
+        if (params.type === "AssetID") {
+          [data, statusCode] = await getLastAssetID();
+        } else {
+          [data, statusCode] = await getAssets(params.id);
+        }
         break;
       case "POST":
         body = JSON.parse(event.body);
@@ -75,6 +80,12 @@ async function addAsset(body) {
 async function getAssets(wo_id) {
   const assets = await db.any(`SELECT * from assets WHERE wo_id = $1`, [wo_id]);
   return [assets, 200];
+}
+
+async function getLastAssetID() {
+  const lastAssetID = await db.one(`SELECT asset_id FROM assets ORDER BY asset_id DESC LIMIT 1`);
+
+  return [lastAssetID, 200];
 }
 
 async function deleteAsset(id) {
