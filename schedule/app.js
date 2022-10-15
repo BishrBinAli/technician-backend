@@ -22,10 +22,9 @@ exports.lambdaHandler = async (event, context) => {
   return response;
 };
 async function getSchedule(user_id) {
-  const schedule = await db.any(
-    `SELECT activity AS title, "start", "end" FROM schedule WHERE user_id = $1`,
-    [user_id]
-  );
+  const schedule = await db.any(`SELECT * FROM schedule WHERE user_id = $1`, [
+    user_id,
+  ]);
 
   return [schedule, 200];
 }
