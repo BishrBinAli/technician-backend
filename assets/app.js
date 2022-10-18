@@ -27,6 +27,11 @@ exports.lambdaHandler = async (event, context) => {
         // console.log(body);
         [data, statusCode] = await addAsset(body);
         break;
+      case "PUT":
+        body = JSON.parse(event.body);
+        // console.log(body);
+        [data, statusCode] = await updateAsset(body);
+        break;
       case "DELETE":
         body = JSON.parse(event.body);
         [data, statusCode] = await deleteAsset(body.asset_id);
@@ -81,6 +86,40 @@ async function getAssets(wo_id) {
   const assets = await db.any(`SELECT * from assets WHERE wo_id = $1`, [wo_id]);
   return [assets, 200];
 }
+
+async function updateAsset(body) {
+  // console.log(body.formData);
+  // console.log(body.image);
+  let statusCode;
+  let data;
+  try {
+    console.log(body);
+    let col_names = Object.keys(body.formData);
+    let asset_id = body.asset_id;
+    col_names = col_names.join();
+    console.log(col_names);
+    let col_values = Object.values(body.formData);
+    // col_values = col_values.join();
+    // console.log(col_values);
+    let values = col_values.map((value, index) => `$${index + 1}`);
+    values = values.join();
+    sql_stmt = `UPDATE assets SET (${col_names}) = (${values}) WHERE asset_id = ${asset_id}`;
+    console.log("sql_stmt", sql_stmt);
+    // await db.none(
+    //   `INSERT INTO assets(${col_names}) values(${values})`,
+    //   col_values
+    // );
+    await db.none(`UPDATE assets SET (${col_names}) = (${values}) WHERE asset_id = ${asset_id}`,col_values);
+    data = "success";
+    statusCode = 200;
+  } catch (err) {
+    data = err.message;
+    statusCode = 400;
+    console.log(err.message);
+  }
+  return [data, statusCode];
+}
+
 
 async function getLastAssetID() {
   const lastAssetID = await db.one(`SELECT asset_id FROM assets ORDER BY asset_id DESC LIMIT 1`);
