@@ -113,6 +113,19 @@ Resources:
       Layers:
         - !Ref GeneralDependenciesLayer
 
+  ITMWorkorderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: itmworkorder/
+      Events:
+        ITMWorkorderAPI:
+          Type: Api
+          Properties:
+            Path: /itmworkorder
+            Method: ANY
+      Layers:
+        - !Ref GeneralDependenciesLayer
+
   ############ DEPENDENCIES ############
 
   #Common Dependencies

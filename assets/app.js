@@ -18,7 +18,10 @@ exports.lambdaHandler = async (event, context) => {
         // console.log(params.type);
         if (params.type === "AssetID") {
           [data, statusCode] = await getLastAssetID();
-        } else {
+        } else if (params.type === "Image") {
+          [data, statusCode] = await getAssetImage(params.asset_id);
+        }
+        else {
           [data, statusCode] = await getAssets(params.id);
         }
         break;
@@ -125,6 +128,12 @@ async function getLastAssetID() {
   const lastAssetID = await db.one(`SELECT asset_id FROM assets ORDER BY asset_id DESC LIMIT 1`);
 
   return [lastAssetID, 200];
+}
+
+async function getAssetImage(id) {
+  const image = await db.one(`SELECT image FROM assets WHERE asset_id = $1`,[id]);
+
+  return [image, 200];
 }
 
 async function deleteAsset(id) {
