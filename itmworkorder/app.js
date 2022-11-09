@@ -40,7 +40,7 @@ async function getAssets(status, wo_id) {
 //     [status, wo_id]
 //   );
   let assets = await db.any(
-    `SELECT a.*,b.device, b.asset_tag, b.floor_no, b.room_no FROM
+    `SELECT a.*, b.device, b.system, b.asset_tag, b.floor_no, b.room_no FROM
     (
     SELECT asset_id, array_agg("type") AS "types" 
     FROM itm_workorders 
