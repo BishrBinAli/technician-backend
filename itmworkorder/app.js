@@ -78,13 +78,13 @@ async function submitITM(body) {
     console.log(col_values);
     let values = col_values.map((value, index) => `$${index + 1}`);
     values = values.join();
-    sql_stmt = `UPDATE itm_workorders SET (${col_names}) = (${values}) WHERE wo_id = ${wo_id} AND asset_id = ${asset_id} AND type = ${type}`;
+    sql_stmt = `UPDATE itm_workorders SET (${col_names}) = (${values}) WHERE wo_id = ${wo_id} AND asset_id = ${asset_id} AND type = '${type}'`;
     console.log("sql_stmt", sql_stmt);
     // await db.none(
     //   `INSERT INTO assets(${col_names}) values(${values})`,
     //   col_values
     // );
-    await db.none(`UPDATE itm_workorders SET (${col_names}) = (${values}) WHERE wo_id = ${wo_id} AND asset_id = ${asset_id} AND "type" = ${type}`,col_values);
+    await db.none(`UPDATE itm_workorders SET (${col_names}) = (${values}) WHERE wo_id = ${wo_id} AND asset_id = ${asset_id} AND "type" = '${type}'`,col_values);
     data = "success";
     statusCode = 200;
   } catch (err) {
