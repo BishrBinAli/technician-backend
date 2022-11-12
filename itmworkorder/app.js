@@ -17,6 +17,10 @@ exports.lambdaHandler = async (event, context) => {
         let params = event.queryStringParameters;
         [data, statusCode] = await getAssets(params.status, params.wo_id);
         break;
+      case "PUT":
+        body = JSON.parse(event.body);
+        [data, statusCode] = await submitITM(body);
+        break;
 
       default:
         [data, statusCode] = ["Error: Invalid request", 400];
@@ -53,4 +57,40 @@ async function getAssets(status, wo_id) {
 
   let statusCode = 200;
   return [assets, statusCode];
+}
+
+async function submitITM(body) {
+  let statusCode;
+  let data;
+  try {
+    console.log(body);
+    console.log("testtinf");
+    console.log(body.asset_id, body.wo_id, body.type);
+    console.log(body.data);
+    let col_names = Object.keys(body.data);
+    let asset_id = body.asset_id;
+    let wo_id = body.wo_id;
+    let type = body.type;
+    col_names = col_names.join();
+    console.log(col_names);
+    let col_values = Object.values(body.data);
+    // col_values = col_values.join();
+    console.log(col_values);
+    let values = col_values.map((value, index) => `$${index + 1}`);
+    values = values.join();
+    sql_stmt = `UPDATE itm_workorders SET (${col_names}) = (${values}) WHERE wo_id = ${wo_id} AND asset_id = ${asset_id} AND type = ${type}`;
+    console.log("sql_stmt", sql_stmt);
+    // await db.none(
+    //   `INSERT INTO assets(${col_names}) values(${values})`,
+    //   col_values
+    // );
+    await db.none(`UPDATE itm_workorders SET (${col_names}) = (${values}) WHERE wo_id = ${wo_id} AND asset_id = ${asset_id} AND "type" = ${type}`,col_values);
+    data = "success";
+    statusCode = 200;
+  } catch (err) {
+    data = err.message;
+    statusCode = 400;
+    console.log(err.message);
+  }
+  return [data, statusCode];
 }
