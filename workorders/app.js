@@ -17,6 +17,10 @@ exports.lambdaHandler = async (event, context) => {
         let params = event.queryStringParameters;
         [data, statusCode] = await getWorkOrders(params.status, params.user_id);
         break;
+      case "PUT":
+        body = JSON.parse(event.body);
+        [data, statusCode] = await submitWorkOrder(body.wo_id);
+        break;
 
       default:
         [data, statusCode] = ["Error: Invalid request", 400];
@@ -45,4 +49,22 @@ async function getWorkOrders(status, user_id) {
 
   let statusCode = 200;
   return [workorders, statusCode];
+}
+
+async function submitWorkOrder(wo_id) {
+  let statusCode;
+  let data;
+  try {
+    console.log(wo_id);
+    sql_stmt = `UPDATE workorders SET "status" = 'Completed' WHERE wo_id = ${wo_id}`;
+    console.log("sql_stmt", sql_stmt);
+    await db.none(`UPDATE workorders SET "status" = 'Completed' WHERE wo_id = ${wo_id}`);
+    data = "success";
+    statusCode = 200;
+  } catch (err) {
+    data = err.message;
+    statusCode = 400;
+    console.log(err.message);
+  }
+  return [data, statusCode];
 }
