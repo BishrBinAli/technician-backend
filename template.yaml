@@ -126,6 +126,19 @@ Resources:
       Layers:
         - !Ref GeneralDependenciesLayer
 
+  TasksFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: tasks/
+      Events:
+        ITMWorkorderAPI:
+          Type: Api
+          Properties:
+            Path: /tasks
+            Method: ANY
+      Layers:
+        - !Ref GeneralDependenciesLayer
+
   ############ DEPENDENCIES ############
 
   #Common Dependencies
