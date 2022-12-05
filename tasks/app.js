@@ -18,8 +18,8 @@ exports.lambdaHandler = async (event, context) => {
         [data, statusCode] = await getTasks(params.wo_id);
         break;
       case "PUT":
-        // body = JSON.parse(event.body);
-        // [data, statusCode] = await submitITM(body);
+        body = JSON.parse(event.body);
+        [data, statusCode] = await submitTask(body.task_id);
         break;
 
       default:
@@ -34,18 +34,35 @@ exports.lambdaHandler = async (event, context) => {
   return response;
 };
 
-async function getTasks(wo_id) {
+async function getTasks(task_id) {
 
   let tasks = await db.any(
     `SELECT a.*,b.name AS system_name
     FROM notification AS a
     JOIN systems AS b
     ON a.system = b.id
-    WHERE a.assigned_wo = $1 and a.type = 'task'`,[wo_id]
+    WHERE a.assigned_wo = $1 and a.type = 'task'`,[task_id]
   ); 
 
   let statusCode = 200;
   return [tasks, statusCode];
 }
 
+async function submitTask(task_id) {
+    let statusCode;
+    let data;
+    try {
+      console.log(task_id);
+      sql_stmt = `UPDATE notification SET "status" = 'completed' WHERE id = ${task_id}`;
+      console.log("sql_stmt", sql_stmt);
+      await db.none(`UPDATE notification SET "status" = 'completed' WHERE id = ${task_id}`);
+      data = "success";
+      statusCode = 200;
+    } catch (err) {
+      data = err.message;
+      statusCode = 400;
+      console.log(err.message);
+    }
+    return [data, statusCode];
+  }
 
